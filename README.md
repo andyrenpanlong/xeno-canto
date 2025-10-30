@@ -1,5 +1,5 @@
 # Xeno-canto 鸟类数据爬虫
-
+https://xeno-canto.org//explore//api -- 官网api使用说明
 这是一个用于采集 [xeno-canto.org](https://xeno-canto.org/) 鸟类录音数据的Python爬虫工具。
 
 ## 功能特点
