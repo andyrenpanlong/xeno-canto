@@ -1,0 +1,248 @@
+应用程序编程接口（API v3）
+Xeno-canto 的最初版本提供了一个非常简单的 Web 服务。2013 年，我们推出了功能更全面的基于 RESTful JSON 的 API。多年来，API v2 的搜索选项和返回的数据都得到了极大的扩展。
+
+热门 API 的缺点在于，其使用可能会对网站整体性能产生负面影响。这迫使我们添加了速率限制器。影响性能的另一个因素是使用了通用的简单搜索词。这些词非常适合网站的通用搜索选项，但 API 更适合使用精确的查询。最后，对 API 的无限制访问也导致了性能下降。
+
+创建新的 API v3 版本使我们能够解决这些问题以及更多问题：
+
+该 API 仅接受搜索标签作为查询语句。现有标签和一些新增标签允许用户精确定义查询，从而显著提升整体性能和搜索结果质量。示例 API 查询演示了新增和已有的搜索标签，请参见“示例”部分。
+现在使用 API 需要 API 密钥。所有已验证邮箱地址的 XC 会员都已拥有一个 API 密钥。您可以在账户页面查找您的密钥。如果您打算使用 API 但还没有账户，则需要先注册才能使用 API v3。
+每页默认结果数已从 500 减少到 100。您可以使用新参数per_page将每页结果数调整为 50 到 500。
+我们已修复搜索结果中搜索标签与录制对象属性之间的一些不一致之处。如果您是从 API v2 升级，请务必阅读“变更”部分。
+我们相信这些措施能够提高 API 和网站的整体性能，因此我们取消了对 API 的严格速率限制。
+要求
+该网络服务的端点位于https://xeno-canto.org/api/3/recordings。
+
+查询参数
+此 API 有四个可能的查询参数。
+
+查询参数为必填项，且不能为空。查询参数必须是搜索字符串，格式请参考搜索技巧页面。
+
+密钥参数是 API v3 的新增功能，必须填写且不能为空。所有 已注册并验证邮箱地址的 XC 会员均可获得密钥。请勿与他人共享您的密钥，也切勿将其发布到任何 Git 仓库中，因为长期滥用 API 可能会导致警告，最终甚至密钥被撤销。如果您不小心共享了密钥，请 联系管理员 获取新密钥。
+
+鼓励使用 XC API 构建应用程序的开发者为其应用程序创建密钥，而不是使用个人密钥。
+per_page参数为可选参数，用于确定每页显示的结果数量。该参数的有效值范围为 50 到 500，如果未提供，则默认值为 100。
+
+page参数也是可选的，仅当给定搜索结果无法在一页内显示时才需要。如果指定了page 参数，则其值必须是介于 1 和results.numPages之间的整数 （详情请参见下方的结果格式）。
+
+回复
+响应以JSON 格式返回，包含有效负载。详情如下所示。
+
+成功
+查询成功后，将返回 HTTP 200 响应代码，有效负载格式如下：
+
+             
+            {
+                "numRecordings": "1",
+                "numSpecies": "1",
+                "page": 1,
+                "numPages": 1,
+                "recordings": [
+                    ...,
+                    Array of Recording objects (see below),
+                    ...
+                ]
+            }
+            
+            
+此 JSON 对象将包含有关给定查询找到的录音的详细信息。出于性能考虑，每次查询返回的录音数量将受到限制。如果限制数量小于结果总数，则会将结果分成“页”。要获取下一页结果，您必须按照上述说明添加页面查询参数。
+
+各领域简介：
+
+numRecording：此查询找到的录音总数
+numSpecies：本次查询找到的物种总数
+页码：当前显示的结果页面的页码。
+numPages：此查询可用的总页数
+录音：一个录音对象数组，详情如下。
+记录对象
+上述记录数组中的每个对象都 具有以下格式：
+
+            
+            {
+                "id": "694038",
+                "gen": "Troglodytes",
+                "sp": "troglodytes",
+                "ssp": "",
+                "grp": "birds",
+                "en": "Eurasian Wren",
+                "rec": "Jacobo Ramil MIllarengo",
+                "cnt": "Spain",
+                "loc": "Sisalde, Ames, A Coru\u00f1a, Galicia",
+                "lat": "42.8373",
+                "lon": "-8.652",
+                "alt": "30",
+                "type": "song",
+                "sex": "male",
+                "stage": "adult",
+                "method": "field recording",
+                "url": "\/\/xeno-canto.org\/694038",
+                "file": "\/\/xeno-canto.org\/694038\/download",
+                "file-name": "XC694038-211223_02Carrizo variaci\u00f3ns dunha frase bastante stereotipada siteD 9.30 Sisalde.mp3",
+                "sono": {
+                    "small": "\/\/xeno-canto.org\/sounds\/uploaded\/LHCOINSOBZ\/ffts\/XC694038-small.png",
+                    "med": "\/\/xeno-canto.org\/sounds\/uploaded\/LHCOINSOBZ\/ffts\/XC694038-med.png",
+                    "large": "\/\/xeno-canto.org\/sounds\/uploaded\/LHCOINSOBZ\/ffts\/XC694038-large.png",
+                    "full": "\/\/xeno-canto.org\/sounds\/uploaded\/LHCOINSOBZ\/ffts\/XC694038-full.png"
+                },
+                "osci": {
+                    "small": "\/\/xeno-canto.org\/sounds\/uploaded\/LHCOINSOBZ\/wave\/XC694038-small.png",
+                    "med": "\/\/xeno-canto.org\/sounds\/uploaded\/LHCOINSOBZ\/wave\/XC694038-med.png",
+                    "large": "\/\/xeno-canto.org\/sounds\/uploaded\/LHCOINSOBZ\/wave\/XC694038-large.png"
+                },
+                "lic": "\/\/creativecommons.org\/licenses\/by-nc-sa\/4.0\/",
+                "q": "A",
+                "length": "4:08",
+                "time": "09:30",
+                "date": "2021-12-23",
+                "uploaded": "2021-12-27",
+                "also": [
+                    "Turdus viscivorus",
+                    "Turdus iliacus",
+                    "Parus major"
+                ],
+                "rmk": "A male repeat a stereotyped phrase with few syllabic variation. HPF 270 Hz. It\u00b4s raining.",
+                "animal-seen": "yes",
+                "playback-used": "no",
+                "temp": "",
+                "regnr": "",
+                "auto": "unknown",
+                "dvc": "",
+                "mic": "",
+                "smp": "44100"
+            }
+            
+            
+以下是对该对象各字段的详细描述：
+
+id：该录音在 xeno-canto 上的目录编号
+gen：物种的属名
+sp：物种的种名（种加词）。
+ssp：亚种名称（亚种加词）
+grp：物种所属的类群（鸟类、蚱蜢、蝙蝠）
+en：该物种的英文名称
+录音：录音师的姓名
+cnt：录音所在国家/地区
+loc：地点名称
+lat：记录地点的纬度（以十进制坐标表示）
+lng：记录的经度（十进制坐标）
+类型：录音的声音类型（结合了预定义术语，例如“通话”或“歌曲”，以及其他自由文本选项）
+性别：动物的性别
+阶段：动物的生命阶段（成体、幼体等）
+方法：录音方法（现场录音、手持录音等）
+url：指向此录制详细信息的 URL
+文件：音频文件的 URL
+文件名：音频文件的原始文件名
+sono：一个包含四个版本超声波图 URL 的对象
+osci：一个包含三个版本的示波图 URL 的对象
+lic：描述此录音许可信息的 URL。
+问：当前录音的质量评级是多少？
+时长：录音的时长（分钟）。
+时间：录制时间。
+日期：录制日期
+上传日期：录音上传到 xeno-canto 的日期
+此外：一个包含录音中已识别背景物种的数组
+rmk：记录员的补充说明
+动物目击：是否目击了所记录的动物？
+播放诱饵是否用于引诱动物？
+温度：记录期间的温度（仅适用于特定组）
+regnr：标本登记号（采集时）
+自动：自动（非人工）录制？
+双视频摄像机 (DVC)：使用的录像设备
+麦克风：使用的麦克风
+smp：采样率
+错误
+如果发生错误，将返回 HTTP 400 或 500 响应代码（取决于错误是客户端错误还是服务器错误）。返回的有效负载格式如下：
+
+            
+            {
+                "error": {
+                    "code":"missing_parameter",
+                    "message":"No query specified"
+                }
+            }            
+            
+            
+代码参数将作为错误的标识符，消息将提供一些额外的解释性细节。
+
+示例
+该 API 使用（组合式）搜索标签来精确定义查询。建议 您熟悉这些标签提供的选项，因为它们的使用并不十分直接！
+
+在深入探讨示例之前，我们需要重申，搜索不带标签的物种（API v2 的默认设置）现已停止。另一个需要注意的重要事项是，您必须为包含多个术语或使用运算符（=、< 或 >）的术语添加引号。更多信息，请参阅“搜索技巧”。最后，在 API v3 中，您需要在每次 API 调用中附加您的密钥。开局不利，以下三个示例均失败：
+
+https://xeno-canto.org/api/3/recordings?query=larus fuscus&key=demo（API v2 风格的查询，不带标签 ->会抛出错误）
+https://xeno-canto.org/api/3/recordings?query=sp:larus fuscus&key=demo（未加引号，解析为对 fuscus 的“无标签”查询 ->抛出错误）
+https://xeno-canto.org/api/3/recordings?query=sp:"larus fuscus"（引用正确，但未提供密钥 ->抛出错误）
+分类学示例
+sp，gen
+最常用的 API 调用可能是获取特定物种的录音。在 API v2 中，只需提供物种名称即可，无需标签；而在 v3 中，则需要sp标签（代表物种）或gen 标签（代表属）与sp标签的组合。sp标签可以用于完整的物种名称（注意：要用引号括起来）；可以与gen标签组合使用（本质上是相同的查询）；也可以仅用于种加词。
+
+接下来是实际示例，两者
+
+https://xeno-canto.org/api/3/recordings?query=sp:"larus fuscus"&key=demo
+https://xeno-canto.org/api/3/recordings?query=gen:larus+sp:fuscus&per_page=50&page=3&key=demo
+将仅获取小黑背鸥（Larus fuscus）的所有录音（第二个示例也演示了分页参数的用法），而
+https://xeno-canto.org/api/3/recordings?query=sp:fuscus&key=demo
+此外，还将收录（除其他物种外）南美白唇草蛙（Leptodactylus fuscus）和大棕蝠（Eptesicus fuscus）的录音结果。当然，也可以单独使用 gen标签来获取特定属的所有录音。
+组
+如果你想将前面的例子限定为只包含鸟类，你可以添加grp标签。因此
+
+https://xeno-canto.org/api/3/recordings?query=sp:fuscus+grp:birds&key=demo
+将搜索所有种加词为fuscus的鸟类。有关所有可能的 分组选项，请参阅搜索提示。
+过氧化物酶
+如果您只对指名亚种波罗的海鸥（Larus fuscus fuscus）的录音感兴趣，那么搜索Larus fuscus可能仍然范围过广。在这种情况下，请在查询中添加ssp标签，或者使用类似于sp标签的三元组：
+
+https://xeno-canto.org/api/3/recordings?query=gen:larus+sp:fuscus+ssp:fuscus&key=demo
+https://xeno-canto.org/api/3/recordings?query=ssp:"larus fuscus fuscus"&key=demo
+家人
+相反，如果您想将搜索范围扩大到所有海鸥，而不仅仅是鸥属（Larus）的海鸥，现在可以使用新的fam标签来实现：
+
+https://xeno-canto.org/api/3/recordings?query=fam:laridae&key=demo
+英文
+最后，还可以使用“en”标签，通过英文俗名搜索分类单元。不过，最好避免使用这种搜索方式。首先，与学名不同，俗名并不能保证唯一。其次，这种搜索方式通常速度较慢，因为它默认使用通配符搜索。比较一下对“lesser black-backed gull”（小黑背鸥）的两种查询性能，一种使用默认的通配符搜索，另一种则使用了匹配运算符：
+
+https://xeno-canto.org/api/3/recordings?query=en:"lesser black-backed gull"&key=demo (通配符搜索，速度较慢)
+https://xeno-canto.org/api/3/recordings?query=en:"=lesser black-backed gull"&key=demo (匹配搜索结果)
+一个极端的例子是这个查询，（截至撰写本文时）可能会返回十二种不同物种的结果，这些物种都共享一个俗名“膀胱蚱蜢”：
+https://xeno-canto.org/api/3/recordings?query=en:="=bladder grasshopper"&key=demo
+地理示例
+区域、计数、位置
+有几种方法可以按地理位置限制查询。按规模大小排序，分别是： 面积（全球范围，大致到洲际级别）、国家/地区和 位置。示例包括亚洲的陆生哺乳动物、苏里南的青蛙以及英国萨福克郡萨福克海岸区的鸟类。
+
+https://xeno-canto.org/api/3/recordings?query=area:asia+grp:"land mammals"&key=demo
+https://xeno-canto.org/api/3/recordings?query=cnt:surinam+grp:frogs&key=demo
+https://xeno-canto.org/api/3/recordings?query=loc:"Suffolk Coastal District, Suffolk, England"+grp:birds&key=demo
+纬度、经度、方框
+或者，您可以根据纬度 ( lat )、 经度 ( lon ) 或二者的组合进行查询。示例返回在北极圈 (65°N) 以北记录的鸟类、在北纬 4.2884 度、东经 36.2626 度附近（肯尼亚境内）记录的蝙蝠，以及在覆盖苏门答腊、马来西亚和新加坡部分地区的边界框内记录的蚱蜢：
+
+https://xeno-canto.org/api/3/recordings?query=grp:birds lat:">66.5"&key=demo
+https://xeno-canto.org/api/3/recordings?query=lat:4.2884+lon:36.2626+grp:bats&key=demo
+https://xeno-canto.org/api/3/recordings?query=box:-1.16,94.62,6.34,106.48+grp:grasshoppers&key=demo
+与日期相关的示例
+年，月，自
+年份和月份标签允许筛选特定时间段之前、之后或之间的记录日期。since标签可用于搜索上传日期。例如，1970年之前记录 的青蛙、8 月之后记录的欧洲雀科鸟类，或上个月记录的所有陆生哺乳动物：
+
+https://xeno-canto.org/api/3/recordings?query=year:"<1970"+grp:frogs&key=demo
+https://xeno-canto.org/api/3/recordings?query=month:">8"+fam:fringillidae+area:europe&key=demo
+https://xeno-canto.org/api/3/recordings?query=since:31+grp:"land mammals"&key=demo
+声音类型和动物相关示例
+类型、性别、阶段
+type （声音类型）、sex（性别）和stage （生命阶段）标签指定了与声音和动物相关的多个特征。各种选项列在“提示”部分。例如，这里展示了美洲雌鸟的鸣叫声或幼年蝙蝠的社交叫声：
+
+https://xeno-canto.org/api/3/recordings?query=type:song+sex:female+grp:birds+area:america&key=demo
+https://xeno-canto.org/api/3/recordings?query=type:"social call"+stage:juvenile+grp:bats&key=demo
+音频文件相关示例
+q、len、smp
+可以使用多个标签来搜索音频文件本身的属性。例如， q 代表音质（采用 AE 标度），len代表时长（以秒为单位）， smp代表录音的采样率。示例展示了时长至少一小时的高品质音景以及来自马来西亚的 A 级和 B 级高频蚱蜢录音的搜索结果。
+
+https://xeno-canto.org/api/3/recordings?query=grp:soundscape+q:A+len:">3600"&key=demo
+https://xeno-canto.org/api/3/recordings?query=cnt:malaysia+smp:">192000"+q:">C"&key=demo
+这些示例中使用的标签列表并不完整。请查看搜索技巧， 以确保您已优化 API 请求！
+
+变化
+自 API v2 版本以来，以下内容已发生更改：
+
+已添加fam和en搜索标签，以取代单个术语的通用“无标签”搜索选项。
+已添加sp搜索标签，以取代对两个词条的通用“无标签”搜索选项。
+已完全禁用对三个或更多“无标签”术语的搜索；请改用gen、sp和ssp组合 表示亚种， en表示英文名称。
+录制对象中的group已更改为grp，与搜索标签相对应。
+录制对象中的lng已更改为lon，与搜索标签保持一致。
